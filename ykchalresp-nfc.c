@@ -10,15 +10,19 @@
 #define SLOT_CHAL_HMAC1 0x30
 #define SLOT_CHAL_HMAC2 0x38
 
+#define vlog(f_, ...) \
+    if (verbose) fprintf(stderr, (f_), ##__VA_ARGS__)
+#define elog(f_, ...) fprintf(stderr, (f_), ##__VA_ARGS__)
+
 int verbose = 0;
 
 int card_transmit(nfc_device *pnd, uint8_t *capdu, size_t capdulen, uint8_t *rapdu, size_t *rapdulen) {
     int res;
     if (verbose) {
         size_t pos;
-        fprintf(stderr, "=> ");
-        for (pos = 0; pos < capdulen; pos++) fprintf(stderr, "%02x ", capdu[pos]);
-        fprintf(stderr, "\n");
+        vlog("=> ");
+        for (pos = 0; pos < capdulen; pos++) vlog("%02x ", capdu[pos]);
+        vlog("\n");
     }
     if ((res = nfc_initiator_transceive_bytes(pnd, capdu, capdulen, rapdu, *rapdulen, 500)) < 0) {
         return -1;
@@ -26,9 +30,9 @@ int card_transmit(nfc_device *pnd, uint8_t *capdu, size_t capdulen, uint8_t *rap
         *rapdulen = (size_t)res;
         if (verbose) {
             size_t pos;
-            fprintf(stderr, "<= ");
-            for (pos = 0; pos < *rapdulen; pos++) fprintf(stderr, "%02x ", rapdu[pos]);
-            fprintf(stderr, "\n");
+            vlog("<= ");
+            for (pos = 0; pos < *rapdulen; pos++) vlog("%02x ", rapdu[pos]);
+            vlog("\n");
         }
         return 0;
     }
@@ -97,24 +101,24 @@ int main(int argc, char *argv[]) {
     nfc_context *context;
     nfc_init(&context);
     if (context == NULL) {
-        fprintf(stderr, "Unable to init libnfc (malloc)\n");
+        elog("ERROR: %s\n", "Unable to init libnfc (malloc)");
         exit(EXIT_FAILURE);
     }
     if (verbose) {
         const char *acLibnfcVersion = nfc_version();
-        fprintf(stderr, "%s uses libnfc %s\n", argv[0], acLibnfcVersion);
+        vlog("DEBUG: %s uses libnfc %s\n", argv[0], acLibnfcVersion);
     }
     pnd = nfc_open(context, NULL);
 
     if (pnd == NULL) {
-        fprintf(stderr, "ERROR: %s", "Unable to open NFC device.\n");
+        elog("ERROR: %s\n", "Unable to open NFC device");
         exit(EXIT_FAILURE);
     }
     if (nfc_initiator_init(pnd) < 0) {
         nfc_perror(pnd, "nfc_initiator_init");
         exit(EXIT_FAILURE);
     }
-    if (verbose) fprintf(stderr, "NFC reader: %s opened\n", nfc_device_get_name(pnd));
+    vlog("DEBUG: NFC reader %s opened\n", nfc_device_get_name(pnd));
 
     const nfc_modulation nmMifare = {
         .nmt = NMT_ISO14443A,
@@ -122,7 +126,7 @@ int main(int argc, char *argv[]) {
     };
     nfc_target ant[1];
     if (nfc_initiator_list_passive_targets(pnd, nmMifare, ant, 1) < 1) {
-        fprintf(stderr, "YubiKey not found\n");
+        elog("ERROR: %s\n", "YubiKey not found");
         exit(EXIT_FAILURE);
     }
 
@@ -143,7 +147,7 @@ int main(int argc, char *argv[]) {
     resp_len = sizeof(resp);
     if (send_apdu(pnd, 0x00, 0x01, slot, 0x00, msg, msg_len, resp, &resp_len) < 0) exit(EXIT_FAILURE);
     if (resp_len <= 2) {
-        fprintf(stderr, "Empty response\n");
+        elog("ERROR: %s\n", "Empty response");
         exit(EXIT_FAILURE);
     }
 
