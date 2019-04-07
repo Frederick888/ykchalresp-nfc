@@ -63,8 +63,9 @@ int send_apdu(nfc_device *pnd, uint8_t cla, uint8_t ins, uint8_t p1, uint8_t p2,
 
 int main(int argc, char *argv[]) {
     uint8_t slot;
+    int dry_run = 0;
     int opt;
-    while ((opt = getopt(argc, argv, "12vV")) != -1) {
+    while ((opt = getopt(argc, argv, "12vnV")) != -1) {
         switch (opt) {
             case '1':
                 slot = SLOT_CHAL_HMAC1;
@@ -74,6 +75,9 @@ int main(int argc, char *argv[]) {
                 break;
             case 'v':
                 verbose = 1;
+                break;
+            case 'n':
+                dry_run = 1;
                 break;
             case 'V':
                 printf("%s v%d.%d.%d\n", argv[0], YKCHALRESP_NFC_MAJOR, YKCHALRESP_NFC_MINOR, YKCHALRESP_NFC_PATCH);
@@ -85,21 +89,23 @@ int main(int argc, char *argv[]) {
 
     char challenge[MAX_CHALLENGE_LENGTH + 1];
     uint8_t challenge_len;
-    memset(challenge, '\0', MAX_CHALLENGE_LENGTH + 1);
-    if (optind >= argc) {
-        char *ret;
-        ret = fgets(challenge, MAX_CHALLENGE_LENGTH, stdin);
-        if (ret == NULL) {
-            exit(EXIT_FAILURE);
+    if (!dry_run) {
+        memset(challenge, '\0', MAX_CHALLENGE_LENGTH + 1);
+        if (optind >= argc) {
+            char *ret;
+            ret = fgets(challenge, MAX_CHALLENGE_LENGTH, stdin);
+            if (ret == NULL) {
+                exit(EXIT_FAILURE);
+            }
+            ret = strrchr(challenge, '\n');
+            if (ret != NULL) {
+                *ret = '\0';
+            }
+        } else {
+            strncpy(challenge, argv[optind], MAX_CHALLENGE_LENGTH);
         }
-        ret = strrchr(challenge, '\n');
-        if (ret != NULL) {
-            *ret = '\0';
-        }
-    } else {
-        strncpy(challenge, argv[optind], MAX_CHALLENGE_LENGTH);
+        challenge_len = strlen(challenge);
     }
-    challenge_len = strlen(challenge);
 
     nfc_device *pnd;
     nfc_context *context;
@@ -134,6 +140,10 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
+    if (dry_run) {
+        goto cleanup;
+    }
+
     uint8_t msg[264];
     size_t msg_len;
     uint8_t resp[264];
@@ -162,6 +172,7 @@ int main(int argc, char *argv[]) {
         printf("%02x", resp[pos]);
     printf("\n");
 
+cleanup:
     nfc_close(pnd);
     nfc_exit(context);
     exit(EXIT_SUCCESS);
