@@ -11,7 +11,8 @@
 #define SLOT_CHAL_HMAC2 0x38
 
 #define vlog(f_, ...) \
-    if (verbose) fprintf(stderr, (f_), ##__VA_ARGS__)
+    if (verbose)      \
+    fprintf(stderr, (f_), ##__VA_ARGS__)
 #define elog(f_, ...) fprintf(stderr, (f_), ##__VA_ARGS__)
 
 int verbose = 0;
@@ -21,7 +22,8 @@ int card_transmit(nfc_device *pnd, uint8_t *capdu, size_t capdu_len, uint8_t *ra
     if (verbose) {
         size_t pos;
         vlog("=> ");
-        for (pos = 0; pos < capdu_len; pos++) vlog("%02x ", capdu[pos]);
+        for (pos = 0; pos < capdu_len; pos++)
+            vlog("%02x ", capdu[pos]);
         vlog("\n");
     }
     if ((res = nfc_initiator_transceive_bytes(pnd, capdu, capdu_len, rapdu, *rapdu_len, 500)) < 0) {
@@ -31,7 +33,8 @@ int card_transmit(nfc_device *pnd, uint8_t *capdu, size_t capdu_len, uint8_t *ra
         if (verbose) {
             size_t pos;
             vlog("<= ");
-            for (pos = 0; pos < *rapdu_len; pos++) vlog("%02x ", rapdu[pos]);
+            for (pos = 0; pos < *rapdu_len; pos++)
+                vlog("%02x ", rapdu[pos]);
             vlog("\n");
         }
         return 0;
@@ -50,7 +53,8 @@ int send_apdu(nfc_device *pnd, uint8_t cla, uint8_t ins, uint8_t p1, uint8_t p2,
     memcpy(&msg[5], data, data_len);
     ret = card_transmit(pnd, msg, 4 + 1 + data_len, resp, resp_len);
     free(msg);
-    if (ret != 0) return ret;
+    if (ret != 0)
+        return ret;
     if (*resp_len < 2 || resp[*resp_len - 2] != 0x90 || resp[*resp_len - 1] != 0x00) {
         return -1;
     }
@@ -139,20 +143,23 @@ int main(int argc, char *argv[]) {
     memcpy(msg, "\xA0\x00\x00\x05\x27\x20\x01", 7);
     msg_len = 7;
     resp_len = sizeof(resp);
-    if (send_apdu(pnd, 0x00, 0xA4, 0x04, 0x00, msg, msg_len, resp, &resp_len) < 0) exit(EXIT_FAILURE);
+    if (send_apdu(pnd, 0x00, 0xA4, 0x04, 0x00, msg, msg_len, resp, &resp_len) < 0)
+        exit(EXIT_FAILURE);
 
     // Challenge Response
     memcpy(msg, challenge, challenge_len);
     msg_len = challenge_len;
     resp_len = sizeof(resp);
-    if (send_apdu(pnd, 0x00, 0x01, slot, 0x00, msg, msg_len, resp, &resp_len) < 0) exit(EXIT_FAILURE);
+    if (send_apdu(pnd, 0x00, 0x01, slot, 0x00, msg, msg_len, resp, &resp_len) < 0)
+        exit(EXIT_FAILURE);
     if (resp_len <= 2) {
         elog("ERROR: %s\n", "Empty response");
         exit(EXIT_FAILURE);
     }
 
     size_t pos;
-    for (pos = 0; pos < resp_len - 2; pos++) printf("%02x", resp[pos]);
+    for (pos = 0; pos < resp_len - 2; pos++)
+        printf("%02x", resp[pos]);
     printf("\n");
 
     nfc_close(pnd);
