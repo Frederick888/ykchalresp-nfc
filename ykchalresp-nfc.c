@@ -16,22 +16,22 @@
 
 int verbose = 0;
 
-int card_transmit(nfc_device *pnd, uint8_t *capdu, size_t capdulen, uint8_t *rapdu, size_t *rapdulen) {
+int card_transmit(nfc_device *pnd, uint8_t *capdu, size_t capdu_len, uint8_t *rapdu, size_t *rapdu_len) {
     int res;
     if (verbose) {
         size_t pos;
         vlog("=> ");
-        for (pos = 0; pos < capdulen; pos++) vlog("%02x ", capdu[pos]);
+        for (pos = 0; pos < capdu_len; pos++) vlog("%02x ", capdu[pos]);
         vlog("\n");
     }
-    if ((res = nfc_initiator_transceive_bytes(pnd, capdu, capdulen, rapdu, *rapdulen, 500)) < 0) {
+    if ((res = nfc_initiator_transceive_bytes(pnd, capdu, capdu_len, rapdu, *rapdu_len, 500)) < 0) {
         return -1;
     } else {
-        *rapdulen = (size_t)res;
+        *rapdu_len = (size_t)res;
         if (verbose) {
             size_t pos;
             vlog("<= ");
-            for (pos = 0; pos < *rapdulen; pos++) vlog("%02x ", rapdu[pos]);
+            for (pos = 0; pos < *rapdu_len; pos++) vlog("%02x ", rapdu[pos]);
             vlog("\n");
         }
         return 0;
@@ -105,8 +105,8 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
     if (verbose) {
-        const char *acLibnfcVersion = nfc_version();
-        vlog("DEBUG: %s uses libnfc %s\n", argv[0], acLibnfcVersion);
+        const char *libnfc_version = nfc_version();
+        vlog("DEBUG: %s uses libnfc %s\n", argv[0], libnfc_version);
     }
     pnd = nfc_open(context, NULL);
 
