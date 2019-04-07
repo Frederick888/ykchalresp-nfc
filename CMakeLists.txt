@@ -24,5 +24,9 @@ else()
     include_directories("${LIBNFC_INCLUDE_DIRS}")
 endif()
 
+configure_file("${PROJECT_SOURCE_DIR}/ykchalresp-nfc.h.in"
+               "${PROJECT_BINARY_DIR}/ykchalresp-nfc.h")
+include_directories("${PROJECT_BINARY_DIR}")
+
 add_executable(ykchalresp-nfc ykchalresp-nfc.c)
 target_link_libraries(ykchalresp-nfc ${LIBNFC_LIBRARIES})

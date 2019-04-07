@@ -1,3 +1,4 @@
+#include "ykchalresp-nfc.h"
 #include <nfc/nfc.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -55,7 +56,7 @@ int send_apdu(nfc_device *pnd, uint8_t cla, uint8_t ins, uint8_t p1, uint8_t p2,
 int main(int argc, char *argv[]) {
     uint8_t slot;
     int opt;
-    while ((opt = getopt(argc, argv, "12v")) != -1) {
+    while ((opt = getopt(argc, argv, "12vV")) != -1) {
         switch (opt) {
             case '1':
                 slot = SLOT_CHAL_HMAC1;
@@ -66,6 +67,9 @@ int main(int argc, char *argv[]) {
             case 'v':
                 verbose = 1;
                 break;
+            case 'V':
+                printf("%s v%d.%d.%d\n", argv[0], YKCHALRESP_NFC_MAJOR, YKCHALRESP_NFC_MINOR, YKCHALRESP_NFC_PATCH);
+                exit(EXIT_SUCCESS);
             default:
                 slot = SLOT_CHAL_HMAC2;
         }

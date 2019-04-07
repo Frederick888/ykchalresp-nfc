@@ -1,0 +1,3 @@
+#define YKCHALRESP_NFC_MAJOR @ykchalresp-nfc_VERSION_MAJOR@
+#define YKCHALRESP_NFC_MINOR @ykchalresp-nfc_VERSION_MINOR@
+#define YKCHALRESP_NFC_PATCH @ykchalresp-nfc_VERSION_PATCH@
