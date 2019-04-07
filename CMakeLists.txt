@@ -1,7 +1,7 @@
-cmake_minimum_required (VERSION 2.6)
-project (ykchalresp-nfc)
-set (Tutorial_VERSION_MAJOR 1)
-set (Tutorial_VERSION_MINOR 0)
+cmake_minimum_required(VERSION 2.6)
+project(ykchalresp-nfc)
+set(Tutorial_VERSION_MAJOR 1)
+set(Tutorial_VERSION_MINOR 0)
 
 if(APPLE)
     # Fix linking on 10.14+. See https://stackoverflow.com/questions/54068035
