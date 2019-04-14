@@ -1,4 +1,3 @@
-#include "ykchalresp-nfc.h"
 #include "cmdline.h"
 #include <nfc/nfc.h>
 #include <stdio.h>
