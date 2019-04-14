@@ -1,8 +1,5 @@
-cmake_minimum_required(VERSION 2.6)
-project(ykchalresp-nfc)
-set(ykchalresp-nfc_VERSION_MAJOR 0)
-set(ykchalresp-nfc_VERSION_MINOR 1)
-set(ykchalresp-nfc_VERSION_PATCH 0)
+cmake_minimum_required(VERSION 3.0)
+project(ykchalresp-nfc VERSION 0.1.0 LANGUAGES "C")
 
 if(APPLE)
     # Fix linking on 10.14+. See https://stackoverflow.com/questions/54068035
@@ -24,9 +21,22 @@ else()
     include_directories("${LIBNFC_INCLUDE_DIRS}")
 endif()
 
+find_program(GENGETOPT gengetopt)
+if(NOT GENGETOPT)
+    message(FATAL_ERROR "gengetopt not found!")
+endif()
+
+configure_file("${PROJECT_SOURCE_DIR}/cmdline.ggo.in"
+               "${PROJECT_BINARY_DIR}/cmdline.ggo")
+add_custom_command(OUTPUT "${PROJECT_BINARY_DIR}/cmdline.h"
+                          "${PROJECT_BINARY_DIR}/cmdline.c"
+                   COMMAND "${GENGETOPT}" -i "${PROJECT_BINARY_DIR}/cmdline.ggo"
+                           --file-name "cmdline"
+                           --output-dir "${PROJECT_BINARY_DIR}"
+                   DEPENDS "${PROJECT_BINARY_DIR}/cmdline.ggo")
 configure_file("${PROJECT_SOURCE_DIR}/ykchalresp-nfc.h.in"
                "${PROJECT_BINARY_DIR}/ykchalresp-nfc.h")
 include_directories("${PROJECT_BINARY_DIR}")
 
-add_executable(ykchalresp-nfc ykchalresp-nfc.c)
+add_executable(ykchalresp-nfc ykchalresp-nfc.c "${PROJECT_BINARY_DIR}/cmdline.c")
 target_link_libraries(ykchalresp-nfc ${LIBNFC_LIBRARIES})

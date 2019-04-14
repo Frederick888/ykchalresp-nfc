@@ -1,0 +1,12 @@
+package "@PROJECT_NAME@"
+version "@PROJECT_VERSION@"
+purpose "Perform challenge response using YubiKey via NFC"
+
+args "--string-parser -uCHALLENGE"
+
+option "dry-run" n "Check presence of YubiKey only" optional
+option "verbose" v "Verbose output" optional
+
+defgroup "slot"
+groupoption "slot-1" 1 "Use slot 1" group="slot"
+groupoption "slot-2" 2 "Use slot 2 (default)" group="slot"

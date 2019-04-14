@@ -1,4 +1,5 @@
 #include "ykchalresp-nfc.h"
+#include "cmdline.h"
 #include <nfc/nfc.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -63,35 +64,19 @@ int send_apdu(nfc_device *pnd, uint8_t cla, uint8_t ins, uint8_t p1, uint8_t p2,
 
 int main(int argc, char *argv[]) {
     uint8_t slot;
-    int dry_run = 0;
-    int opt;
-    while ((opt = getopt(argc, argv, "12vnV")) != -1) {
-        switch (opt) {
-            case '1':
-                slot = SLOT_CHAL_HMAC1;
-                break;
-            case '2':
-                slot = SLOT_CHAL_HMAC2;
-                break;
-            case 'v':
-                verbose = 1;
-                break;
-            case 'n':
-                dry_run = 1;
-                break;
-            case 'V':
-                printf("%s v%d.%d.%d\n", argv[0], YKCHALRESP_NFC_MAJOR, YKCHALRESP_NFC_MINOR, YKCHALRESP_NFC_PATCH);
-                exit(EXIT_SUCCESS);
-            default:
-                slot = SLOT_CHAL_HMAC2;
-        }
-    }
+    int dry_run;
+    struct gengetopt_args_info args_info;
+    if (cmdline_parser(argc, argv, &args_info) != 0)
+        exit(EXIT_FAILURE);
+    slot = args_info.slot_1_given ? 2 : 1;
+    dry_run = args_info.dry_run_given;
+    verbose = args_info.verbose_given;
 
     char challenge[MAX_CHALLENGE_LENGTH + 1];
     uint8_t challenge_len;
     if (!dry_run) {
         memset(challenge, '\0', MAX_CHALLENGE_LENGTH + 1);
-        if (optind >= argc) {
+        if (!args_info.inputs_num) {
             char *ret;
             ret = fgets(challenge, MAX_CHALLENGE_LENGTH, stdin);
             if (ret == NULL) {
@@ -102,7 +87,7 @@ int main(int argc, char *argv[]) {
                 *ret = '\0';
             }
         } else {
-            strncpy(challenge, argv[optind], MAX_CHALLENGE_LENGTH);
+            strncpy(challenge, args_info.inputs[0], strlen(args_info.inputs[0]));
         }
         challenge_len = strlen(challenge);
     }
@@ -116,7 +101,7 @@ int main(int argc, char *argv[]) {
     }
     if (verbose) {
         const char *libnfc_version = nfc_version();
-        vlog("DEBUG: %s uses libnfc %s\n", argv[0], libnfc_version);
+        vlog("DEBUG: ykchalresp-nfc uses libnfc %s\n", libnfc_version);
     }
     pnd = nfc_open(context, NULL);
 
