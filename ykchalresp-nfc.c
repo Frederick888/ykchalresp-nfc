@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
     struct gengetopt_args_info args_info;
     if (cmdline_parser(argc, argv, &args_info) != 0)
         exit(EXIT_FAILURE);
-    slot = args_info.slot_1_given ? 2 : 1;
+    slot = args_info.slot_1_given ? SLOT_CHAL_HMAC1 : SLOT_CHAL_HMAC2;
     dry_run = args_info.dry_run_given;
     verbose = args_info.verbose_given;
 
