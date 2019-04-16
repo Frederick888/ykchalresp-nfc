@@ -86,7 +86,7 @@ int main(int argc, char *argv[]) {
                 *ret = '\0';
             }
         } else {
-            strncpy(challenge, args_info.inputs[0], strlen(args_info.inputs[0]));
+            strncpy(challenge, args_info.inputs[0], MAX_CHALLENGE_LENGTH);
         }
         challenge_len = strlen(challenge);
     }
