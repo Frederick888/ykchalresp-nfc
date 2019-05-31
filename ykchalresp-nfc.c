@@ -17,7 +17,9 @@
 
 int verbose = 0;
 
-int card_transmit(nfc_device *pnd, uint8_t *capdu, size_t capdu_len, uint8_t *rapdu, size_t *rapdu_len) {
+int card_transmit(nfc_device *pnd, uint8_t *capdu, size_t capdu_len,
+                  uint8_t *rapdu, size_t *rapdu_len)
+{
     int res;
     if (verbose) {
         size_t pos;
@@ -26,7 +28,8 @@ int card_transmit(nfc_device *pnd, uint8_t *capdu, size_t capdu_len, uint8_t *ra
             vlog("%02x ", capdu[pos]);
         vlog("\n");
     }
-    if ((res = nfc_initiator_transceive_bytes(pnd, capdu, capdu_len, rapdu, *rapdu_len, 500)) < 0) {
+    if ((res = nfc_initiator_transceive_bytes(pnd, capdu, capdu_len, rapdu,
+                                              *rapdu_len, 500)) < 0) {
         return -1;
     } else {
         *rapdu_len = (size_t)res;
@@ -41,8 +44,9 @@ int card_transmit(nfc_device *pnd, uint8_t *capdu, size_t capdu_len, uint8_t *ra
     }
 }
 
-int send_apdu(nfc_device *pnd, uint8_t cla, uint8_t ins, uint8_t p1, uint8_t p2, uint8_t *data, uint8_t data_len,
-              uint8_t *resp, size_t *resp_len) {
+int send_apdu(nfc_device *pnd, uint8_t cla, uint8_t ins, uint8_t p1, uint8_t p2,
+              uint8_t *data, uint8_t data_len, uint8_t *resp, size_t *resp_len)
+{
     uint8_t *msg = malloc(4 + 1 + data_len);
     int ret;
     msg[0] = cla;
@@ -61,7 +65,8 @@ int send_apdu(nfc_device *pnd, uint8_t cla, uint8_t ins, uint8_t p1, uint8_t p2,
     return ret;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     uint8_t slot;
     int dry_run;
     struct gengetopt_args_info args_info;
