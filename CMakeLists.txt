@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(ykchalresp-nfc VERSION 0.1.0 LANGUAGES "C")
+project(ykchalresp-nfc VERSION 0.1.1 LANGUAGES "C")
 
 if(APPLE)
     # Fix linking on 10.14+. See https://stackoverflow.com/questions/54068035
